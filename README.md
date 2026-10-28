@@ -1,3 +1,9 @@
+
+
+https://github.com/user-attachments/assets/1a755f22-34a0-437b-936a-5389011ee22a
+
+
+
 # FlowLens
 
 See how data moves through a codebase: where it enters, which functions transform it, where it lands. Then step through a real run like a debugger, with the actual values at every step. Works on any repository: Python and TypeScript/JavaScript today, with more languages possible through the adapter interface.
