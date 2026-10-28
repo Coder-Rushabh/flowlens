@@ -1,0 +1,4 @@
+[project]
+name = "inventory"
+version = "0.1.0"
+dependencies = ["flask", "psycopg", "pika", "celery", "boto3"]

@@ -1,0 +1,22 @@
+{
+  "name": "flowlens-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "FlowLens: visual, step-through data-flow explorer for any codebase",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "flowlens": "node packages/core/src/cli.ts",
+    "build": "npm run build -w @flowlens/ui",
+    "dev:ui": "npm run dev -w @flowlens/ui",
+    "typecheck": "tsc -p packages/core && tsc -p packages/ui",
+    "test": "npm run test:core && npm run test:python",
+    "test:core": "node --test \"packages/core/test/*.test.ts\"",
+    "test:python": "cd adapters/python && python -m unittest discover -s tests"
+  }
+}

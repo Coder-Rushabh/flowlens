@@ -1,0 +1,14 @@
+{
+  "name": "@flowlens/node",
+  "version": "0.1.0",
+  "description": "FlowLens runtime tracer for Node.js (and shared JS/TS naming + SQL helpers)",
+  "type": "module",
+  "exports": {
+    "./register": "./register.mjs",
+    "./naming": "./naming.mjs",
+    "./sql": "./sql.mjs"
+  },
+  "peerDependencies": {
+    "typescript": ">=5"
+  }
+}

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flowlens"
+version = "0.1.0"
+description = "FlowLens Python adapter: static data-flow scanner (runtime tracer arrives in phase 2)"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["flowlens*"]

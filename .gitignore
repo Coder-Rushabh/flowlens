@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.flowlens/
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+*.tsbuildinfo

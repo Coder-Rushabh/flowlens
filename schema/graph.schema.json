@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "flowlens/graph@1",
+  "title": "FlowLens graph",
+  "description": "Language-neutral data-flow graph. Every adapter emits nodes/edges in this shape; edges point in the direction data moves.",
+  "type": "object",
+  "required": ["schema", "project", "repoRoot", "generatedAt", "services", "nodes", "edges"],
+  "properties": {
+    "schema": { "const": "flowlens/graph@1" },
+    "project": { "type": "string" },
+    "repoRoot": { "type": "string", "description": "Absolute path the graph was scanned from" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "services": { "type": "array", "items": { "$ref": "#/$defs/service" } },
+    "nodes": { "type": "array", "items": { "$ref": "#/$defs/node" } },
+    "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" } },
+    "warnings": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "service": {
+      "type": "object",
+      "required": ["name", "language", "root", "status"],
+      "properties": {
+        "name": { "type": "string" },
+        "language": { "type": "string" },
+        "root": { "type": "string", "description": "Relative to repoRoot" },
+        "status": { "enum": ["scanned", "skipped", "failed"] },
+        "message": { "type": "string" },
+        "stats": { "type": "object", "additionalProperties": { "type": "number" } }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": ["id", "kind", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable id. Conventions: svc:<service>, fn:<service>:<qualname>, route:<service>:<METHOD> <path>, entry:<service>:<key>, table:<schema.table>, topic:<key>, bucket:<name>, ext:<label>"
+        },
+        "kind": { "enum": ["service", "route", "entry", "function", "table", "topic", "bucket", "external"] },
+        "name": { "type": "string" },
+        "service": { "type": "string" },
+        "module": { "type": "string" },
+        "file": { "type": "string", "description": "Relative to repoRoot, forward slashes" },
+        "line": { "type": "integer" },
+        "endLine": { "type": "integer" }
+      },
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["file"],
+      "properties": {
+        "file": { "type": "string" },
+        "line": { "type": ["integer", "null"] },
+        "op": { "type": "string", "description": "insert | update | delete | upsert | select | publish | subscribe | enqueue | put | get | <METHOD path> …" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "from", "to", "kind", "origin", "evidence"],
+      "properties": {
+        "id": { "type": "string", "description": "<from>|<kind>|<to>" },
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "kind": { "enum": ["handles", "calls", "reads", "writes", "publishes", "consumes", "routes", "http"] },
+        "origin": { "enum": ["static", "runtime", "both"] },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+        "ops": { "type": "array", "items": { "type": "string" } },
+        "ambiguous": { "type": "boolean" }
+      }
+    }
+  }
+}

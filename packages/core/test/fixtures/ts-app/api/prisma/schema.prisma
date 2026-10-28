@@ -1,0 +1,11 @@
+model Order {
+  id     String @id
+  status String
+  @@map("orders")
+}
+
+model AuditLog {
+  id      Int    @id
+  message String
+  @@map("audit_log")
+}

@@ -1,0 +1,53 @@
+# Runnable two-service demo for FlowLens runtime tracing.
+#   flowlens docker examples/runtime-demo        -> writes the tracing override
+#   flowlens ui examples/runtime-demo --ingest-host 0.0.0.0
+#   docker compose -f examples/runtime-demo/docker-compose.yml -f examples/runtime-demo/.flowlens/docker-compose.flowlens.yml up -d
+#   curl -X POST localhost:18080/orders -H 'content-type: application/json' -d '{"sku":"SHOE-1","quantity":2,"email":"a@b.c"}'
+# Source is mounted, so any image with the requirements works (set ORDERS_IMAGE / INVENTORY_IMAGE to skip building).
+name: flowlens-runtime-demo
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      retries: 20
+
+  orders:
+    build: ./orders
+    image: ${ORDERS_IMAGE:-flowlens-demo-orders}
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    working_dir: /app
+    volumes: ["./orders:/app"]
+    environment:
+      INVENTORY_URL: http://inventory:8000
+      AMQP_URL: amqp://guest:guest@rabbitmq/
+    ports: ["18080:8000"]
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+
+  inventory:
+    build: ./inventory
+    image: ${INVENTORY_IMAGE:-flowlens-demo-inventory}
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    working_dir: /app
+    volumes: ["./inventory:/app", "inventory-data:/data"]
+    user: "0"  # the shared SQLite volume is root-owned
+    environment:
+      AMQP_URL: amqp://guest:guest@rabbitmq/
+
+  inventory-worker:
+    image: ${INVENTORY_IMAGE:-flowlens-demo-inventory}
+    command: ["python", "-m", "app.worker"]
+    working_dir: /app
+    volumes: ["./inventory:/app", "inventory-data:/data"]
+    user: "0"
+    environment:
+      AMQP_URL: amqp://guest:guest@rabbitmq/
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+      inventory: { condition: service_started }
+
+volumes:
+  inventory-data:
